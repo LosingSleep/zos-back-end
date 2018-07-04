@@ -451,6 +451,14 @@ router.get("/ds/detail", function (req, res, next) {
     res.send(errorInfo);
 });
 
+
+/*
+    *
+    * 搜索指定catalog路由
+    * 如:3000/search?name=alias all
+    * GET方法
+    * 以String格式返回数据
+    */
 router.get("/search", function (req, res, next) {
     //构造初始jcl语句
     var postData = "//ST011PR0 JOB ACCT#,\n" +
