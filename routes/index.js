@@ -135,7 +135,7 @@ router.get("/mastercatalog", function (req, res, next) {
         //设置延迟函数
         setTimeout(function () {
             // console.log("wait!");
-            rp(options,function (error, response, body) {
+            rp(options, function (error, response, body) {
                 if (error) {
                     return console.error("An error occurred", error);
                 }
@@ -147,7 +147,7 @@ router.get("/mastercatalog", function (req, res, next) {
                     res.send(data);
                 }
             })
-        },1000);
+        }, 1000);
     })
 });
 
@@ -383,7 +383,6 @@ router.get("/alias/list", function (req, res, next) {
 })
 
 
-
 /*
     *
     * 获取具体数据集内容的路由
@@ -447,11 +446,10 @@ router.get("/ds/detail", function (req, res, next) {
         console.log(err.error);
         next();
     })
-}, function(req, res){
+}, function (req, res) {
     var errorInfo = {error: "This is not a dataset!"};
     res.send(errorInfo);
 });
-
 
 
 module.exports = router;
