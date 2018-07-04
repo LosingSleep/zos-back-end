@@ -451,5 +451,87 @@ router.get("/ds/detail", function (req, res, next) {
     res.send(errorInfo);
 });
 
+router.get("/search", function (req, res, next) {
+    //构造初始jcl语句
+    var postData = "//ST011PR0 JOB ACCT#,\n" +
+        "// NOTIFY=&SYSUID,\n" +
+        "// MSGLEVEL=(1,1),LINES=(5,CANCEL),TIME=2\n" +
+        "//LSTALIAS EXEC PGM=IDCAMS\n" +
+        "//SYSPRINT DD SYSOUT=A\n" +
+        "//SYSIN DD *\n";
+
+    //判断前端调用查询类型
+    //name值为空时默认查询主目录下的用户目录表列
+    var searchName = req.query.name;
+    var searchStr = "  LISTCAT " + searchName.toUpperCase() + "\n";
+    postData += searchStr;
+
+    var options = {
+        url: 'https://10.60.45.8:8800/zosmf/restjobs/jobs',
+        method: 'PUT',
+        rejectUnauthorized: false,
+        headers: {
+            'Content-Type': 'text/plain',
+            'Authorization': 'Basic aWJtdXNlcjoyMDE4MDY='
+        },
+        body: postData
+    };
+
+    rp(options, function (error) {
+        if (error) {
+            return console.error("An error occurred", error);
+        }
+    }).then(resource => {
+        // console.log(resource);
+        var str = JSON.parse(resource);
+        var jobname = str.jobname;
+        var jobid = str.jobid;
+        var url = "https://10.60.45.8:8800/zosmf/restjobs/jobs/" + jobname + "/" + jobid + "/files";
+        var options = {
+            url: url,
+            method: 'GET',
+            rejectUnauthorized: false,
+            headers: {
+                'Content-Type': 'text/plain',
+                'Authorization': 'Basic aWJtdXNlcjoyMDE4MDY='
+            },
+        };
+        return rp(options, function (error) {
+            if (error) {
+                return console.error("An error occurred", error);
+            }
+        })
+    }).then(resource => {
+        var str = JSON.parse(resource);
+        var jobname = str[0].jobname;
+        var jobid = str[0].jobid;
+        var id;
+        for (var i = 0; i < str.length; i++) {
+            if (str[i].ddname == "SYSPRINT") {
+                id = str[i].id;
+            }
+        }
+        var url = "https://10.60.45.8:8800/zosmf/restjobs/jobs/" + jobname + "/" + jobid + "/files/" + id + "/records";
+        var options = {
+            url: url,
+            method: 'GET',
+            rejectUnauthorized: false,
+            headers: {
+                'Content-Type': 'text/plain',
+                'Authorization': 'Basic aWJtdXNlcjoyMDE4MDY='
+            },
+        };
+        return rp(options, function (error) {
+            if (error) {
+                return console.error("An error occurred", error);
+            }
+        })
+    }).then(resource => {
+        //字符串处理
+        // var data = processCatalogBody(resource);
+        res.send(resource);
+    })
+});
+
 
 module.exports = router;
