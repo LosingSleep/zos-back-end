@@ -26,6 +26,7 @@ var server = http.createServer(app);
  */
 
 server.listen(port);
+server.keepAliveTimeout=20000;
 server.on('error', onError);
 server.on('listening', onListening);
 
@@ -82,7 +83,8 @@ function onError(error) {
  */
 
 function onListening() {
-  var addr = server.address();
+    console.log("A new connection was made by a client.");
+    var addr = server.address();
   var bind = typeof addr === 'string'
     ? 'pipe ' + addr
     : 'port ' + addr.port;
